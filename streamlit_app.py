@@ -448,9 +448,8 @@ with tab2:
     # Reverse Search Section
     st.markdown("### Select Desired Effects")
 
-    # Initialize selected effects and valid effects
+    # Initialize selected effects
     selected_effects = set()
-    valid_effects = set(EFFECTS.keys())  # Start with all effects as valid
 
     # Divide effects into 4 groups for columns
     effects_list = list(EFFECTS.keys())
@@ -458,27 +457,28 @@ with tab2:
         effects_list[:8],   # First 8 effects
         effects_list[8:16], # Next 8 effects
         effects_list[16:24],# Next 8 effects
-        effects_list[24:]   # Remaining 10 effects
+        effects_list[24:]   # Remaining effects
     ]
 
     # Create 4 columns
     col1, col2, col3, col4 = st.columns(4)
 
-    # Add checkboxes to each column and update valid effects dynamically
+    # Add checkboxes to each column
     for col, group in zip([col1, col2, col3, col4], column_groups):
         with col:
             for effect in group:
-                if effect in valid_effects:
-                    # Display checkbox for valid effects
+                if len(selected_effects) < 8 or effect in selected_effects:
+                    # Allow selection if under the limit or already selected
                     if st.checkbox(effect, key=f"effect_{effect}"):
                         selected_effects.add(effect)
-                        valid_effects = bfs_all_transformations(selected_effects)
                     else:
                         selected_effects.discard(effect)
-                        valid_effects = bfs_all_transformations(selected_effects)
                 else:
-                    # Display greyed-out text for invalid effects
+                    # Gray out effects if the limit is reached
                     st.markdown(f"<span style='color:grey'>{effect}</span>", unsafe_allow_html=True)
+
+    # Display the selected effects
+    st.write(f"Selected Effects ({len(selected_effects)}/8): {', '.join(selected_effects)}")
 
     # Search button
     if st.button("Search Substances"):
