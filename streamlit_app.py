@@ -1,0 +1,503 @@
+# Streamlit UI for "Schedule I", a game where players manage a drug empire.
+# This tool helps users explore substances, effects, and strategies.
+
+# #Each substance brings a unique effect to the mix. However, there are set rules that determine how different substances and their effects interact with existing substances and effects.
+# When a substance is introduced to a mix: It applies rules based off the substance itself telling which effects to mix into what. After a mix is performed, the default substance adds its own "Default" effect to the mix (if there is space).
+# Each "Strain" is only allowed to have up to 8 effects at a time. When a mix is done; and we try to add the default effect, if we are at that limit the default effect is not added.
+
+import streamlit as st
+
+# Base prices for substances
+BASE_PRICES = {
+    "Weed": 35,
+    "Meth": 70,
+    "Cocaine": 150
+}
+
+# Effects and their multipliers
+EFFECTS = {
+    "Anti-Gravity": 0.54,
+    "Athletic": 0.32,
+    "Balding": 0.30,
+    "Bright-Eyed": 0.40,
+    "Calming": 0.10,
+    "Calorie-Dense": 0.28,
+    "Cyclopean": 0.56,
+    "Disorienting": 0.00,
+    "Electrifying": 0.50,
+    "Energizing": 0.22,
+    "Euphoric": 0.18,
+    "Explosive": 0.00,
+    "Focused": 0.16,
+    "Foggy": 0.36,
+    "Gingeritis": 0.20,
+    "Glowing": 0.48,
+    "Jennerising": 0.42,
+    "Laxative": 0.00,
+    "Long Faced": 0.52,
+    "Munchies": 0.12,
+    "Paranoia": 0.00,
+    "Refreshing": 0.14,
+    "Schizophrenia": 0.00,
+    "Sedating": 0.26,
+    "Seizure-Inducing": 0.00,
+    "Shrinking": 0.60,
+    "Slippery": 0.34,
+    "Smelly": 0.00,
+    "Sneaky": 0.24,
+    "Spicy": 0.38,
+    "Thought-Provoking": 0.44,
+    "Toxic": 0.00,
+    "Tropic Thunder": 0.46,
+    "Zombifying": 0.58
+}
+
+# Rules for each substance (ordered alphabetically)
+SUBSTANCE_RULES = {
+    "Addy": [
+        ("Sedating", "Gingeritis"),
+        ("Long Faced", "Electrifying"),
+        ("Glowing", "Refreshing"),
+        ("Foggy", "Energizing"),
+        ("Explosive", "Euphoric")
+    ],
+    "Banana": [
+        ("Energizing", "Thought-Provoking"),
+        ("Calming", "Sneaky"),
+        ("Toxic", "Smelly"),
+        ("Long Faced", "Refreshing"),
+        ("Cyclopean", "Thought-Provoking"),
+        ("Disorienting", "Focused"),
+        ("Focused", "Seizure-Inducing"),
+        ("Paranoia", "Jennerising"),
+        ("Smelly", "Anti-Gravity")
+    ],
+    "Battery": [
+        ("Munchies", "Tropic Thunder"),
+        ("Euphoric", "Zombifying"),
+        ("Electrifying", "Euphoric"),
+        ("Laxative", "Calorie-Dense"),
+        ("Cyclopean", "Glowing"),
+        ("Shrinking", "Munchies")
+    ],
+    "Chili": [
+        ("Athletic", "Euphoric"),
+        ("Anti-Gravity", "Tropic Thunder"),
+        ("Sneaky", "Bright-Eyed"),
+        ("Munchies", "Toxic"),
+        ("Laxative", "Long Faced"),
+        ("Shrinking", "Refreshing")
+    ],
+    "Cuke": [
+        ("Toxic", "Euphoric"),
+        ("Slippery", "Munchies"),
+        ("Sneaky", "Paranoia"),
+        ("Foggy", "Cyclopean"),
+        ("Gingeritis", "Thought-Provoking"),
+        ("Munchies", "Athletic"),
+        ("Euphoric", "Laxative")
+    ],
+    "Donut": [
+        ("Calorie-Dense", "Explosive"),
+        ("Balding", "Sneaky"),
+        ("Anti-Gravity", "Slippery"),
+        ("Jennerising", "Gingeritis"),
+        ("Focused", "Euphoric"),
+        ("Shrinking", "Energizing")
+    ],
+    "Energy Drink": [
+        ("Sedating", "Munchies"),
+        ("Euphoric", "Energizing"),
+        ("Spicy", "Euphoric"),
+        ("Tropic Thunder", "Sneaky"),
+        ("Glowing", "Disorienting"),
+        ("Foggy", "Laxative"),
+        ("Disorienting", "Electrifying"),
+        ("Schizophrenia", "Balding"),
+        ("Focused", "Shrinking")
+    ],
+    "Flu Medicine": [
+        ("Calming", "Bright-Eyed"),
+        ("Athletic", "Munchies"),
+        ("Thought-Provoking", "Gingeritis"),
+        ("Cyclopean", "Foggy"),
+        ("Munchies", "Slippery"),
+        ("Laxative", "Euphoric"),
+        ("Euphoric", "Toxic"),
+        ("Focused", "Calming"),
+        ("Electrifying", "Refreshing"),
+        ("Shrinking", "Paranoia")
+    ],
+    "Gasoline": [
+        ("Gingeritis", "Smelly"),
+        ("Jennerising", "Sneaky"),
+        ("Sneaky", "Tropic Thunder"),
+        ("Munchies", "Sedating"),
+        ("Energizing", "Euphoric"),
+        ("Euphoric", "Energizing"),
+        ("Laxative", "Foggy"),
+        ("Disorienting", "Glowing"),
+        ("Paranoia", "Calming"),
+        ("Electrifying", "Disorienting"),
+        ("Shrinking", "Focused")
+    ],
+    "Horse Semen": [
+        ("Anti-Gravity", "Calming"),
+        ("Gingeritis", "Refreshing"),
+        ("Thought-Provoking", "Electrifying")
+    ],
+    "Iodine": [
+        ("Calming", "Balding"),
+        ("Toxic", "Sneaky"),
+        ("Foggy", "Paranoia"),
+        ("Calorie-Dense", "Gingeritis"),
+        ("Euphoric", "Seizure-Inducing"),
+        ("Refreshing", "Thought-Provoking")
+    ],
+    "Mega Bean": [
+        ("Energizing", "Cyclopean"),
+        ("Calming", "Glowing"),
+        ("Sneaky", "Calming"),
+        ("Jennerising", "Paranoia"),
+        ("Athletic", "Laxative"),
+        ("Slippery", "Toxic"),
+        ("Thought-Provoking", "Energizing"),
+        ("Seizure-Inducing", "Focused"),
+        ("Focused", "Disorienting"),
+        ("Shrinking", "Electrifying")
+    ],
+    "Motor Oil": [
+        ("Energizing", "Munchies"),
+        ("Foggy", "Toxic"),
+        ("Euphoric", "Sedating"),
+        ("Paranoia", "Anti-Gravity"),
+        ("Munchies", "Schizophrenia")
+    ],
+    "Mouth Wash": [
+        ("Calming", "Anti-Gravity"),
+        ("Calorie-Dense", "Sneaky"),
+        ("Explosive", "Sedating"),
+        ("Focused", "Jennerising")
+    ],
+    "Paracetamol": [
+        ("Energizing", "Paranoia"),
+        ("Calming", "Slippery"),
+        ("Toxic", "Tropic Thunder"),
+        ("Spicy", "Bright-Eyed"),
+        ("Glowing", "Toxic"),
+        ("Foggy", "Calming"),
+        ("Munchies", "Anti-Gravity"),
+        ("Electrifying", "Athletic"),
+        ("Paranoia", "Balding"),
+        ("Focused", "Gingeritis")
+    ],
+    "Viagra": [
+        ("Athletic", "Sneaky"),
+        ("Euphoric", "Bright-Eyed"),
+        ("Laxative", "Calming"),
+        ("Disorienting", "Toxic")
+    ]
+}
+
+# Default effects for substances (ordered alphabetically)
+DEFAULT_EFFECTS = {
+    "Addy": ["Thought-Provoking"],
+    "Banana": ["Gingeritis"],
+    "Battery": ["Bright-Eyed"],
+    "Chili": ["Spicy"],
+    "Cuke": ["Energizing"],
+    "Donut": ["Calorie-Dense"],
+    "Energy Drink": ["Athletic"],
+    "Flu Medicine": ["Sedating"],
+    "Gasoline": ["Toxic"],
+    "Horse Semen": ["Long Faced"],
+    "Iodine": ["Jennerising"],
+    "Mega Bean": ["Foggy"],
+    "Motor Oil": ["Slippery"],
+    "Mouth Wash": ["Balding"],
+    "Paracetamol": ["Sneaky"],
+    "Viagra": ["Tropic Thunder"]
+}
+
+# Function to add default effects
+
+
+def add_substance_default_effects(substance, selected_effects):
+    """
+    Adds the default effects of the selected substance to the effects list, ensuring the total number of effects does not exceed the maximum limit of 8.
+    """
+    default_effects = DEFAULT_EFFECTS.get(substance, [])
+    updated_effects = set(selected_effects)
+    for effect in default_effects:
+        # Max 8 effects
+        if effect not in updated_effects and len(updated_effects) < 8:
+            updated_effects.add(effect)
+    return list(updated_effects)
+
+# Function to apply rules to effects
+
+
+def apply_substance_rules(substance, selected_effects):
+    """
+    Applies the ruleset for the given substance to the effects list.
+    If `old_effect` is not in `selected_effects`, that rule is skipped and no changes are made.
+    """
+    rules = SUBSTANCE_RULES.get(substance, [])
+    updated_effects = set(selected_effects)
+    for old_effect, new_effect in rules:
+        if old_effect in updated_effects:
+            updated_effects.remove(old_effect)
+            updated_effects.add(new_effect)
+    updated_effects = list(updated_effects)
+    return updated_effects
+
+# Function to handle both default effects and rules
+
+
+def process_effects(substance, selected_effects):
+    """
+    Processes the effects for a given substance by first adding its default effects 
+    and then applying the associated ruleset.
+
+    Parameters:
+        substance (str): The name of the substance to process.
+        selected_effects (list): A list of effects currently selected.
+
+    Returns:
+        list: A list of final effects after adding defaults and applying rules.
+
+    Note:
+        The order of operations is significant. Default effects are added first 
+        to ensure they are included before applying the ruleset, which may modify or 
+        replace existing effects.
+    """
+    # Step 1: Add default effects
+    effects_with_defaults = add_substance_default_effects(
+        substance, selected_effects)
+
+    # Step 2: Apply ruleset
+    final_effects = apply_substance_rules(substance, effects_with_defaults)
+
+    return final_effects
+
+
+# Streamlit app
+st.title("Schedule I: Substance Mix Calculator")
+st.sidebar.header("Substance and Effects Selection")
+
+# Sidebar: Select substance
+substance = st.sidebar.selectbox(
+    "Select a substance:", sorted(
+        set(BASE_PRICES.keys()).union(DEFAULT_EFFECTS.keys()))
+)
+
+# Sidebar: Select effects
+selected_effects = st.sidebar.multiselect(
+    "Select effects:", list(EFFECTS.keys())
+)
+
+# Calculate button
+if st.sidebar.button("Calculate Final Price"):
+    # Process effects (add defaults and apply rules)
+    updated_effects = add_substance_default_effects(
+        substance, selected_effects)
+    updated_effects = apply_substance_rules(substance, updated_effects)
+
+    # Calculate total multiplier
+    total_multiplier = sum(EFFECTS.get(effect, 0)
+                           for effect in updated_effects)
+    # Calculate final price
+    if substance not in BASE_PRICES:
+        st.error(
+            f"The selected substance '{substance}' does not have a base price defined.")
+        base_price = 0  # Initialize base_price to avoid UnboundLocalError
+        final_price = 0  # Initialize final_price to avoid further errors
+    else:
+        base_price = BASE_PRICES[substance]
+        final_price = base_price * (1 + total_multiplier)
+
+    # Display results
+    st.subheader("Mix Results")
+    st.write(f"**Base Price:** ${base_price}")
+    st.write(f"**Selected Effects (After Rules Applied):** " +
+             ", ".join([f"{effect} (x{EFFECTS[effect]:.2f})" for effect in updated_effects]))
+    st.write(f"**Selected Effects (After Rules Applied):** " +
+             ", ".join([f"{effect} (x{EFFECTS[effect]:.2f})" for effect in updated_effects]))
+    for effect in updated_effects:
+        st.write(f"- {effect} (x{EFFECTS[effect]:.2f})")
+    st.write(f"**Final Price:** ~${round(final_price)}")
+
+# Streamlit section: How Pricing Works
+st.sidebar.markdown("## How Pricing Works")
+st.sidebar.markdown("""
+Our mix pricing is calculated by taking the base price of each product and applying the effect multipliers. The formula used is:
+
+**Final Price** = Base Price * (1 + total effect multiplier)
+
+### Base Prices:
+- **Weed**: $35
+- **Meth**: $70
+- **Cocaine**: $150
+
+### Effect Multiplier:
+Each effect adds a multiplier that increases the base price.
+
+### Example:
+Suppose you have a mix that includes the effects: **Bright-Eyed** and **Tropic Thunder** with multipliers of 0.40 and 0.46. The total multiplier is 0.40 + 0.46 = 0.86. For a base product like Meth (base price $70), the final price is:
+
+$70 * (1 + 0.86) = $130
+""")
+
+# Products
+# Weed
+# Base Price: $35
+# Meth
+# Base Price: $70
+# Cocaine
+# Base Price: $150
+
+# Substances that interact with each other:
+# Cuke(Energizing) — Weed: ~$43, Meth: ~$85, Cocaine: ~$183
+# If Toxic present, then replace Toxic with Euphoric.
+# If Slippery present, then replace Slippery with Munchies.
+# If Sneaky present, then replace Sneaky with Paranoia.
+# If Foggy present, then replace Foggy with Cyclopean.
+# If Gingeritis present, then replace Gingeritis with Thought-Provoking.
+# If Munchies present, then replace Munchies with Athletic.
+# If Euphoric present, then replace Euphoric with Laxative.
+
+# Flu Medicine(Sedating) — Weed: ~$44, Meth: ~$88, Cocaine: ~$189
+# If Calming present, then replace Calming with Bright-Eyed.
+# If Athletic present, then replace Athletic with Munchies.
+# If Thought-Provoking present, then replace Thought-Provoking with Gingeritis.
+# If Cyclopean present, then replace Cyclopean with Foggy.
+# If Munchies present, then replace Munchies with Slippery.
+# If Laxative present, then replace Laxative with Euphoric.
+# If Euphoric present, then replace Euphoric with Toxic.
+# If Focused present, then replace Focused with Calming.
+# If Electrifying present, then replace Electrifying with Refreshing.
+# If Shrinking present, then replace Shrinking with Paranoia.
+
+# Gasoline(Toxic) — Weed: ~$35, Meth: ~$70, Cocaine: ~$150
+# If Gingeritis present, then replace Gingeritis with Smelly.
+# If Jennerising present, then replace Jennerising with Sneaky.
+# If Sneaky present, then replace Sneaky with Tropic Thunder.
+# If Munchies present, then replace Munchies with Sedating.
+# If Energizing present, then replace Energizing with Euphoric.
+# If Euphoric present, then replace Euphoric with Energizing.
+# If Laxative present, then replace Laxative with Foggy.
+# If Disorienting present, then replace Disorienting with Glowing.
+# If Paranoia present, then replace Paranoia with Calming.
+# If Electrifying present, then replace Electrifying with Disorienting.
+# If Shrinking present, then replace Shrinking with Focused.
+
+# Donut(Calorie-Dense) — Weed: ~$45, Meth: ~$90, Cocaine: ~$192
+# If Calorie-Dense present, then replace Calorie-Dense with Explosive.
+# If Balding present, then replace Balding with Sneaky.
+# If Anti-Gravity present, then replace Anti-Gravity with Slippery.
+# If Jennerising present, then replace Jennerising with Gingeritis.
+# If Focused present, then replace Focused with Euphoric.
+# If Shrinking present, then replace Shrinking with Energizing.
+
+# Energy Drink(Athletic) — Weed: ~$46, Meth: ~$92, Cocaine: ~$198
+# If Sedating present, then replace Sedating with Munchies.
+# If Euphoric present, then replace Euphoric with Energizing.
+# If Spicy present, then replace Spicy with Euphoric.
+# If Tropic Thunder present, then replace Tropic Thunder with Sneaky.
+# If Glowing present, then replace Glowing with Disorienting.
+# If Foggy present, then replace Foggy with Laxative.
+# If Disorienting present, then replace Disorienting with Electrifying.
+# If Schizophrenia present, then replace Schizophrenia with Balding.
+# If Focused present, then replace Focused with Shrinking.
+
+# Mouth Wash(Balding) — Weed: ~$46, Meth: ~$91, Cocaine: ~$195
+# If Calming present, then replace Calming with Anti-Gravity.
+# If Calorie-Dense present, then replace Calorie-Dense with Sneaky.
+# If Explosive present, then replace Explosive with Sedating.
+# If Focused present, then replace Focused with Jennerising.
+
+# Motor Oil(Slippery) — Weed: ~$47, Meth: ~$94, Cocaine: ~$201
+# If Energizing present, then replace Energizing with Munchies.
+# If Foggy present, then replace Foggy with Toxic.
+# If Euphoric present, then replace Euphoric with Sedating.
+# If Paranoia present, then replace Paranoia with Anti-Gravity.
+# If Munchies present, then replace Munchies with Schizophrenia.
+
+# Banana(Gingeritis) — Weed: ~$42, Meth: ~$84, Cocaine: ~$180
+# If Energizing present, then replace Energizing with Thought-Provoking.
+# If Calming present, then replace Calming with Sneaky.
+# If Toxic present, then replace Toxic with Smelly.
+# If Long Faced present, then replace Long Faced with Refreshing.
+# If Cyclopean present, then replace Cyclopean with Thought-Provoking.
+# If Disorienting present, then replace Disorienting with Focused.
+# If Focused present, then replace Focused with Seizure-Inducing.
+# If Paranoia present, then replace Paranoia with Jennerising.
+# If Smelly present, then replace Smelly with Anti-Gravity.
+
+# Chili(Spicy) — Weed: ~$48, Meth: ~$97, Cocaine: ~$207
+# If Athletic present, then replace Athletic with Euphoric.
+# If Anti-Gravity present, then replace Anti-Gravity with Tropic Thunder.
+# If Sneaky present, then replace Sneaky with Bright-Eyed.
+# If Munchies present, then replace Munchies with Toxic.
+# If Laxative present, then replace Laxative with Long Faced.
+# If Shrinking present, then replace Shrinking with Refreshing.
+
+# Iodine(Jennerising) — Weed: ~$50, Meth: ~$99, Cocaine: ~$213
+# If Calming present, then replace Calming with Balding.
+# If Toxic present, then replace Toxic with Sneaky.
+# If Foggy present, then replace Foggy with Paranoia.
+# If Calorie-Dense present, then replace Calorie-Dense with Gingeritis.
+# If Euphoric present, then replace Euphoric with Seizure-Inducing.
+# If Refreshing present, then replace Refreshing with Thought-Provoking.
+
+# Paracetamol(Sneaky) — Weed: ~$43, Meth: ~$87, Cocaine: ~$186
+# If Energizing present, then replace Energizing with Paranoia.
+# If Calming present, then replace Calming with Slippery.
+# If Toxic present, then replace Toxic with Tropic Thunder.
+# If Spicy present, then replace Spicy with Bright-Eyed.
+# If Glowing present, then replace Glowing with Toxic.
+# If Foggy present, then replace Foggy with Calming.
+# If Munchies present, then replace Munchies with Anti-Gravity.
+# If Electrifying present, then replace Electrifying with Athletic.
+# If Paranoia present, then replace Paranoia with Balding.
+# If Focused present, then replace Focused with Gingeritis.
+
+# Viagra(Tropic Thunder) — Weed: ~$51, Meth: ~$102, Cocaine: ~$219
+# If Athletic present, then replace Athletic with Sneaky.
+# If Euphoric present, then replace Euphoric with Bright-Eyed.
+# If Laxative present, then replace Laxative with Calming.
+# If Disorienting present, then replace Disorienting with Toxic.
+
+# Horse Semen(Long Faced) — Weed: ~$53, Meth: ~$106, Cocaine: ~$228
+# If Anti-Gravity present, then replace Anti-Gravity with Calming.
+# If Gingeritis present, then replace Gingeritis with Refreshing.
+# If Thought-Provoking present, then replace Thought-Provoking with Electrifying.
+
+# Mega Bean(Foggy) — Weed: ~$48, Meth: ~$95, Cocaine: ~$204
+# If Energizing present, then replace Energizing with Cyclopean.
+# If Calming present, then replace Calming with Glowing.
+# If Sneaky present, then replace Sneaky with Calming.
+# If Jennerising present, then replace Jennerising with Paranoia.
+# If Athletic present, then replace Athletic with Laxative.
+# If Slippery present, then replace Slippery with Toxic.
+# If Thought-Provoking present, then replace Thought-Provoking with Energizing.
+# If Seizure-Inducing present, then replace Seizure-Inducing with Focused.
+# If Focused present, then replace Focused with Disorienting.
+# If Sneaky present, then replace Sneaky with Glowing.
+# If Thought-Provoking present, then replace Thought-Provoking with Cyclopean.
+# If Shrinking present, then replace Shrinking with Electrifying.
+
+# Addy(Thought-Provoking) — Weed: ~$50, Meth: ~$101, Cocaine: ~$216
+# If Sedating present, then replace Sedating with Gingeritis.
+# If Long Faced present, then replace Long Faced with Electrifying.
+# If Glowing present, then replace Glowing with Refreshing.
+# If Foggy present, then replace Foggy with Energizing.
+# If Explosive present, then replace Explosive with Euphoric.
+
+# Battery(Bright-Eyed) — Weed: ~$49, Meth: ~$98, Cocaine: ~$210
+# If Munchies present, then replace Munchies with Tropic Thunder.
+# If Euphoric present, then replace Euphoric with Zombifying.
+# If Electrifying present, then replace Electrifying with Euphoric.
+# If Laxative present, then replace Laxative with Calorie-Dense.
+# If Cyclopean present, then replace Cyclopean with Glowing.
+# If Shrinking present, then replace Shrinking with Munchies.
