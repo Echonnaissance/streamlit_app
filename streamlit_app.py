@@ -309,6 +309,85 @@ def find_substances_with_effects_and_steps(desired_effects):
 
     return matching_substances, transformation_steps
 
+# Function to perform BFS to explore all possible transformations
+def bfs_all_transformations(start_effects):
+    """
+    Perform BFS to find all reachable effects starting from the given effects.
+    :param start_effects: List of starting effects.
+    :return: Set of all reachable effects.
+    """
+    queue = list(start_effects)  # Initialize the queue with starting effects
+    visited = set(start_effects)  # Track visited effects
+
+    while queue:
+        current_effect = queue.pop(0)  # Dequeue the next effect
+
+        # Check all transformations for the current effect
+        for substance, rules in SUBSTANCE_RULES.items():
+            for old_effect, new_effect in rules:
+                if old_effect == current_effect and new_effect not in visited:
+                    # Add the new effect to the queue and mark it as visited
+                    queue.append(new_effect)
+                    visited.add(new_effect)
+
+    return visited
+
+# Function to perform BFS to find the shortest path between two effects
+def bfs_shortest_path(start_effect, target_effect):
+    """
+    Perform BFS to find the shortest path from start_effect to target_effect.
+    :param start_effect: The starting effect.
+    :param target_effect: The target effect.
+    :return: List representing the shortest path, or None if no path exists.
+    """
+    queue = [(start_effect, [start_effect])]  # Initialize the queue with the starting effect and path
+    visited = set([start_effect])  # Track visited effects
+
+    while queue:
+        current_effect, path = queue.pop(0)  # Dequeue the next effect and its path
+
+        # If the target effect is found, return the path
+        if current_effect == target_effect:
+            return path
+
+        # Check all transformations for the current effect
+        for substance, rules in SUBSTANCE_RULES.items():
+            for old_effect, new_effect in rules:
+                if old_effect == current_effect and new_effect not in visited:
+                    # Add the new effect to the queue with the updated path
+                    queue.append((new_effect, path + [new_effect]))
+                    visited.add(new_effect)
+
+    return None  # Return None if no path exists
+
+# Function to perform BFS to find all paths between two effects
+def bfs_all_paths(start_effect, target_effect):
+    """
+    Perform BFS to find all paths from start_effect to target_effect.
+    :param start_effect: The starting effect.
+    :param target_effect: The target effect.
+    :return: List of all paths, where each path is a list of effects.
+    """
+    queue = [(start_effect, [start_effect])]  # Initialize the queue with the starting effect and path
+    all_paths = []  # Store all paths
+
+    while queue:
+        current_effect, path = queue.pop(0)  # Dequeue the next effect and its path
+
+        # If the target effect is found, add the path to the list of all paths
+        if current_effect == target_effect:
+            all_paths.append(path)
+            continue
+
+        # Check all transformations for the current effect
+        for substance, rules in SUBSTANCE_RULES.items():
+            for old_effect, new_effect in rules:
+                if old_effect == current_effect and new_effect not in path:  # Avoid cycles
+                    # Add the new effect to the queue with the updated path
+                    queue.append((new_effect, path + [new_effect]))
+
+    return all_paths
+
 # Streamlit app
 st.title("Schedule I: Substance Mix Calculator")
 
@@ -365,6 +444,10 @@ with tab2:
     # Reverse Search Section
     st.markdown("### Select Desired Effects")
 
+    # Initialize selected effects and valid effects
+    selected_effects = set()
+    valid_effects = set(EFFECTS.keys())  # Start with all effects as valid
+
     # Divide effects into 4 groups for columns
     effects_list = list(EFFECTS.keys())
     column_groups = [
@@ -377,33 +460,25 @@ with tab2:
     # Create 4 columns
     col1, col2, col3, col4 = st.columns(4)
 
-    # Collect selected effects
-    desired_effects = []
-
-    # Add checkboxes to each column
-    with col1:
-        for effect in column_groups[0]:
-            if st.checkbox(effect, key=f"effect_{effect}"):
-                desired_effects.append(effect)
-
-    with col2:
-        for effect in column_groups[1]:
-            if st.checkbox(effect, key=f"effect_{effect}"):
-                desired_effects.append(effect)
-
-    with col3:
-        for effect in column_groups[2]:
-            if st.checkbox(effect, key=f"effect_{effect}"):
-                desired_effects.append(effect)
-
-    with col4:
-        for effect in column_groups[3]:
-            if st.checkbox(effect, key=f"effect_{effect}"):
-                desired_effects.append(effect)
+    # Add checkboxes to each column and update valid effects dynamically
+    for col, group in zip([col1, col2, col3, col4], column_groups):
+        with col:
+            for effect in group:
+                if effect in valid_effects:
+                    # Display checkbox for valid effects
+                    if st.checkbox(effect, key=f"effect_{effect}"):
+                        selected_effects.add(effect)
+                        valid_effects = bfs_all_transformations(selected_effects)
+                    else:
+                        selected_effects.discard(effect)
+                        valid_effects = bfs_all_transformations(selected_effects)
+                else:
+                    # Display greyed-out text for invalid effects
+                    st.markdown(f"<span style='color:grey'>{effect}</span>", unsafe_allow_html=True)
 
     # Search button
     if st.button("Search Substances"):
-        matching_substances, transformation_steps = find_substances_with_effects_and_steps(desired_effects)
+        matching_substances, transformation_steps = find_substances_with_effects_and_steps(selected_effects)
 
         st.subheader("Reverse Search Results")
         if matching_substances:
@@ -415,6 +490,27 @@ with tab2:
                     st.write(f"    - {step}")
         else:
             st.write("No substances found that can produce the desired effects.")
+
+    # Input fields for start and target effects
+    start_effect = st.selectbox("Select Start Effect:", list(EFFECTS.keys()))
+    target_effect = st.selectbox("Select Target Effect:", list(EFFECTS.keys()))
+
+    # Buttons to find shortest path or all paths
+    if st.button("Find Shortest Path"):
+        path = bfs_shortest_path(start_effect, target_effect)
+        if path:
+            st.write(f"Shortest Path: {' → '.join(path)}")
+        else:
+            st.write("No path found.")
+
+    if st.button("Find All Paths"):
+        paths = bfs_all_paths(start_effect, target_effect)
+        if paths:
+            st.write("All Paths:")
+            for path in paths:
+                st.write(f"- {' → '.join(path)}")
+        else:
+            st.write("No paths found.")
 
 # Streamlit section: How Pricing Works
 st.sidebar.markdown("## How Pricing Works")
