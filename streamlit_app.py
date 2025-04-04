@@ -573,11 +573,12 @@ with tab2:
     # Create 4 columns
     col1, col2, col3, col4 = st.columns(4)
 
-    # Add checkboxes to each column
+    # Add checkboxes to each column with multipliers
     for col, group in zip([col1, col2, col3, col4], column_groups):
         with col:
             for effect in group:
-                if st.checkbox(effect, key=f"effect_{effect}"):
+                label = f"{effect} (x{EFFECTS[effect]:.2f})"  # Include multiplier in label
+                if st.checkbox(label, key=f"effect_{effect}"):
                     selected_effects.add(effect)
 
     # Display the selected effects
