@@ -563,8 +563,7 @@ with tab2:
     st.markdown("### Select a Product")
     selected_product = st.selectbox(
         "Select a Product for Context:",
-        ["OG Kush", "Sour Diesel", "Green Crack",
-            "Granddaddy Purple", "Meth", "Cocaine"]
+        ["OG Kush", "Sour Diesel", "Green Crack", "Granddaddy Purple", "Meth", "Cocaine"]
     )
 
     # Step 2: Select desired effects
@@ -603,8 +602,7 @@ with tab2:
         if shortest_path:
             # Calculate the cost and sell value
             base_price = BASE_PRICES[selected_product]
-            total_multiplier = sum(EFFECTS.get(effect, 0)
-                                   for effect in selected_effects)
+            total_multiplier = sum(EFFECTS.get(effect, 0) for effect in selected_effects)
             final_price = base_price * (1 + total_multiplier)
             sell_value = final_price * 1.5  # Assuming a 50% markup for sell value
 
