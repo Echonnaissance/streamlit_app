@@ -474,21 +474,19 @@ with tab2:
     for col, group in zip([col1, col2, col3, col4], column_groups):
         with col:
             for effect in group:
+                # Allow selection up to 8 effects
                 if len(selected_effects) < 8 or effect in selected_effects:
-                    # Allow selection if under the limit or already selected
                     if st.checkbox(effect, key=f"effect_{effect}"):
                         selected_effects.add(effect)
                     else:
                         selected_effects.discard(effect)
-                else:
-                    # Gray out effects if the limit is reached
-                    st.markdown(f"<span style='color:grey'>{effect}</span>", unsafe_allow_html=True)
 
     # Display the selected effects
     st.write(f"Selected Effects ({len(selected_effects)}/8): {', '.join(selected_effects)}")
 
     # Search button
     if st.button("Search Substances"):
+        # Automatically find the shortest path of ingredients to achieve the desired effects
         matching_substances, transformation_steps = find_substances_with_effects_and_steps(selected_effects)
 
         st.subheader("Reverse Search Results")
