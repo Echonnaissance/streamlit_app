@@ -532,10 +532,6 @@ with tab2:
         else:
             st.write("No substances found that can produce the desired effects.")
 
-    # Input fields for start and target effects
-    start_effect = st.selectbox("Select Start Effect:", list(EFFECTS.keys()))
-    target_effect = st.selectbox("Select Target Effect:", list(EFFECTS.keys()))
-
     # Buttons to find shortest path or all paths
     if st.button("Find Shortest Path"):
         path = bfs_shortest_path(start_effect, target_effect)
@@ -543,15 +539,6 @@ with tab2:
             st.write(f"Shortest Path: {' → '.join(path)}")
         else:
             st.write("No path found.")
-
-    if st.button("Find All Paths"):
-        paths = bfs_all_paths(start_effect, target_effect)
-        if paths:
-            st.write("All Paths:")
-            for path in paths:
-                st.write(f"- {' → '.join(path)}")
-        else:
-            st.write("No paths found.")
 
 # Streamlit section: How Pricing Works
 st.sidebar.markdown("## How Pricing Works")
