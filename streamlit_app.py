@@ -444,11 +444,18 @@ with tab1:
     # Step 2: Add substances dynamically
     st.markdown("### Add Substances")
     substances = []
-    # Get dropdown options with base effects
-    substance_options = get_substance_options()
+    # Get dropdown options with base effects, excluding the 4 strains of weed
+    substance_options = [
+        f"{substance} ({', '.join(effects)})"
+        for substance, effects in DEFAULT_EFFECTS.items()
+        if substance not in ["OG Kush", "Sour Diesel", "Green Crack", "Granddaddy Purple"]
+    ]
+    substance_options.insert(0, "None")  # Add "None" as the first option
+
     for i in range(8):  # Allow up to 8 substances
         selected_option = st.selectbox(
-            f"Substance {i + 1}:", substance_options, key=f"substance_{i}")
+            f"Substance {i + 1}:", substance_options, key=f"substance_{i}"
+        )
         if selected_option != "None":
             # Extract the substance name (remove the effect label in parentheses)
             substance_name = selected_option.split(" (")[0]
@@ -494,8 +501,8 @@ with tab2:
     effects_list = list(EFFECTS.keys())
     column_groups = [
         effects_list[:8],   # First 8 effects
-        effects_list[8:16], # Next 8 effects
-        effects_list[16:24],# Next 8 effects
+        effects_list[8:16],  # Next 8 effects
+        effects_list[16:24],  # Next 8 effects
         effects_list[24:]   # Remaining effects
     ]
 
@@ -514,12 +521,14 @@ with tab2:
                         selected_effects.discard(effect)
 
     # Display the selected effects
-    st.write(f"Selected Effects ({len(selected_effects)}/8): {', '.join(selected_effects)}")
+    st.write(
+        f"Selected Effects ({len(selected_effects)}/8): {', '.join(selected_effects)}")
 
     # Search button
     if st.button("Search Substances"):
         # Automatically find the shortest path of ingredients to achieve the desired effects
-        matching_substances, transformation_steps = find_substances_with_effects_and_steps(selected_effects)
+        matching_substances, transformation_steps = find_substances_with_effects_and_steps(
+            selected_effects)
 
         st.subheader("Reverse Search Results")
         if matching_substances:
@@ -531,14 +540,6 @@ with tab2:
                     st.write(f"    - {step}")
         else:
             st.write("No substances found that can produce the desired effects.")
-
-    # Buttons to find shortest path or all paths
-    if st.button("Find Shortest Path"):
-        path = bfs_shortest_path(start_effect, target_effect)
-        if path:
-            st.write(f"Shortest Path: {' → '.join(path)}")
-        else:
-            st.write("No path found.")
 
 # Streamlit section: How Pricing Works
 st.sidebar.markdown("## How Pricing Works")
