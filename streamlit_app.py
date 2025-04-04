@@ -227,15 +227,20 @@ SUBSTANCE_RULES = {
 }
 
 # Function to add default effects
+
+
 def add_substance_default_effects(substance, selected_effects):
     default_effects = DEFAULT_EFFECTS.get(substance, [])
     updated_effects = set(selected_effects)
     for effect in default_effects:
-        if effect not in updated_effects and len(updated_effects) < 8:  # Max 8 effects
+        # Max 8 effects
+        if effect not in updated_effects and len(updated_effects) < 8:
             updated_effects.add(effect)
     return list(updated_effects)
 
 # Function to apply rules to effects
+
+
 def apply_substance_rules(substance, selected_effects):
     rules = SUBSTANCE_RULES.get(substance, [])
     updated_effects = set(selected_effects)
@@ -246,23 +251,31 @@ def apply_substance_rules(substance, selected_effects):
     return list(updated_effects)
 
 # Function to process effects for a single substance
+
+
 def process_effects(substance, selected_effects):
-    effects_with_defaults = add_substance_default_effects(substance, selected_effects)
+    effects_with_defaults = add_substance_default_effects(
+        substance, selected_effects)
     final_effects = apply_substance_rules(substance, effects_with_defaults)
     return final_effects
 
 # Function to generate dropdown options with base effects
+
+
 def get_substance_options():
     """
     Returns a list of substances with their default effects included in the label.
     """
     options = ["None"]  # Start with "None" as the default option
     for substance, effects in DEFAULT_EFFECTS.items():
-        effect_label = ", ".join(effects)  # Combine multiple effects if present
+        # Combine multiple effects if present
+        effect_label = ", ".join(effects)
         options.append(f"{substance} ({effect_label})")
     return options
 
 # Function to find substances that can produce the desired effects
+
+
 def find_substances_with_effects(desired_effects):
     """
     Finds substances that can produce the desired effects, either as default effects
@@ -288,6 +301,8 @@ def find_substances_with_effects(desired_effects):
     return matching_substances
 
 # Function to find substances and show how they produce the desired effects
+
+
 def find_substances_with_effects_and_steps(desired_effects):
     """
     Finds substances that can produce the desired effects and tracks the steps
@@ -299,7 +314,8 @@ def find_substances_with_effects_and_steps(desired_effects):
     for substance, default_effects in DEFAULT_EFFECTS.items():
         # Start with the default effects of the substance
         effects = set(default_effects)
-        steps = [f"{substance} (Default Effects: {', '.join(default_effects)})"]
+        steps = [
+            f"{substance} (Default Effects: {', '.join(default_effects)})"]
 
         # Apply the substance's rules to simulate possible effects
         if substance in SUBSTANCE_RULES:
@@ -307,7 +323,8 @@ def find_substances_with_effects_and_steps(desired_effects):
                 if old_effect in effects:
                     effects.remove(old_effect)
                     effects.add(new_effect)
-                    steps.append(f"{substance} transformed {old_effect} → {new_effect}")
+                    steps.append(
+                        f"{substance} transformed {old_effect} → {new_effect}")
 
         # Check if the substance can produce all desired effects
         if all(effect in effects for effect in desired_effects):
@@ -317,6 +334,8 @@ def find_substances_with_effects_and_steps(desired_effects):
     return matching_substances, transformation_steps
 
 # Function to perform BFS to explore all possible transformations
+
+
 def bfs_all_transformations(selected_effects):
     """
     Perform BFS to find all reachable effects starting from the selected effects.
@@ -327,7 +346,8 @@ def bfs_all_transformations(selected_effects):
         # If no effects are selected, all effects are valid
         return set(EFFECTS.keys())
 
-    queue = list(selected_effects)  # Initialize the queue with selected effects
+    # Initialize the queue with selected effects
+    queue = list(selected_effects)
     visited = set(selected_effects)  # Track visited effects
 
     while queue:
@@ -344,6 +364,8 @@ def bfs_all_transformations(selected_effects):
     return visited
 
 # Function to perform BFS to find the shortest path between two effects
+
+
 def bfs_shortest_path(start_effect, target_effect):
     """
     Perform BFS to find the shortest path from start_effect to target_effect.
@@ -351,11 +373,13 @@ def bfs_shortest_path(start_effect, target_effect):
     :param target_effect: The target effect.
     :return: List representing the shortest path, or None if no path exists.
     """
-    queue = [(start_effect, [start_effect])]  # Initialize the queue with the starting effect and path
+    queue = [(start_effect, [start_effect])
+             ]  # Initialize the queue with the starting effect and path
     visited = set([start_effect])  # Track visited effects
 
     while queue:
-        current_effect, path = queue.pop(0)  # Dequeue the next effect and its path
+        # Dequeue the next effect and its path
+        current_effect, path = queue.pop(0)
 
         # If the target effect is found, return the path
         if current_effect == target_effect:
@@ -372,6 +396,8 @@ def bfs_shortest_path(start_effect, target_effect):
     return None  # Return None if no path exists
 
 # Function to perform BFS to find all paths between two effects
+
+
 def bfs_all_paths(start_effect, target_effect):
     """
     Perform BFS to find all paths from start_effect to target_effect.
@@ -379,11 +405,13 @@ def bfs_all_paths(start_effect, target_effect):
     :param target_effect: The target effect.
     :return: List of all paths, where each path is a list of effects.
     """
-    queue = [(start_effect, [start_effect])]  # Initialize the queue with the starting effect and path
+    queue = [(start_effect, [start_effect])
+             ]  # Initialize the queue with the starting effect and path
     all_paths = []  # Store all paths
 
     while queue:
-        current_effect, path = queue.pop(0)  # Dequeue the next effect and its path
+        # Dequeue the next effect and its path
+        current_effect, path = queue.pop(0)
 
         # If the target effect is found, add the path to the list of all paths
         if current_effect == target_effect:
@@ -398,6 +426,7 @@ def bfs_all_paths(start_effect, target_effect):
                     queue.append((new_effect, path + [new_effect]))
 
     return all_paths
+
 
 # Streamlit app
 st.title("Schedule I: Substance Mix Calculator")
@@ -415,9 +444,11 @@ with tab1:
     # Step 2: Add substances dynamically
     st.markdown("### Add Substances")
     substances = []
-    substance_options = get_substance_options()  # Get dropdown options with base effects
+    # Get dropdown options with base effects
+    substance_options = get_substance_options()
     for i in range(8):  # Allow up to 8 substances
-        selected_option = st.selectbox(f"Substance {i + 1}:", substance_options, key=f"substance_{i}")
+        selected_option = st.selectbox(
+            f"Substance {i + 1}:", substance_options, key=f"substance_{i}")
         if selected_option != "None":
             # Extract the substance name (remove the effect label in parentheses)
             substance_name = selected_option.split(" (")[0]
@@ -431,7 +462,8 @@ with tab1:
             final_effects = process_effects(substance, final_effects)
 
         # Calculate total multiplier
-        total_multiplier = sum(EFFECTS.get(effect, 0) for effect in final_effects)
+        total_multiplier = sum(EFFECTS.get(effect, 0)
+                               for effect in final_effects)
 
         # Calculate final price
         base_price = BASE_PRICES[product]
