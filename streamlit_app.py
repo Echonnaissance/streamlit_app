@@ -427,6 +427,49 @@ def bfs_all_paths(start_effect, target_effect):
 
     return all_paths
 
+# Function to perform BFS to find the shortest path to achieve the selected effects
+
+
+def bfs_shortest_path(selected_effects):
+    """
+    Perform BFS to find the shortest path to achieve the selected effects.
+    :param selected_effects: Set of currently selected effects.
+    :return: List of steps representing the shortest path, or None if no path exists.
+    """
+    if not selected_effects:
+        return None  # No effects selected
+
+    queue = [(set(), [])]  # Start with an empty set of effects and an empty path
+    visited = set()  # Track visited states
+
+    while queue:
+        current_effects, path = queue.pop(0)
+
+        # Check if the current effects match the selected effects
+        if selected_effects.issubset(current_effects):
+            return path
+
+        # Mark the current state as visited
+        visited.add(frozenset(current_effects))
+
+        # Explore all substances and their transformations
+        for substance, default_effects in DEFAULT_EFFECTS.items():
+            # Start with the default effects of the substance
+            new_effects = current_effects.union(default_effects)
+
+            # Apply the substance's rules
+            if substance in SUBSTANCE_RULES:
+                for old_effect, new_effect in SUBSTANCE_RULES[substance]:
+                    if old_effect in new_effects:
+                        new_effects.remove(old_effect)
+                        new_effects.add(new_effect)
+
+            # Add the new state to the queue if it hasn't been visited
+            if frozenset(new_effects) not in visited:
+                queue.append((new_effects, path + [f"Use {substance}"]))
+
+    return None  # No path found
+
 
 # Streamlit app
 st.title("Schedule I: Substance Mix Calculator")
@@ -528,33 +571,25 @@ with tab2:
     for col, group in zip([col1, col2, col3, col4], column_groups):
         with col:
             for effect in group:
-                # Allow selection up to 8 effects
-                if len(selected_effects) < 8 or effect in selected_effects:
-                    if st.checkbox(effect, key=f"effect_{effect}"):
-                        selected_effects.add(effect)
-                    else:
-                        selected_effects.discard(effect)
+                if st.checkbox(effect, key=f"effect_{effect}"):
+                    selected_effects.add(effect)
 
     # Display the selected effects
     st.write(
-        f"Selected Effects ({len(selected_effects)}/8): {', '.join(selected_effects)}")
+        f"Selected Effects ({len(selected_effects)}): {', '.join(selected_effects)}")
 
     # Search button
     if st.button("Search Substances"):
-        # Automatically find the shortest path of ingredients to achieve the desired effects
-        matching_substances, transformation_steps = find_substances_with_effects_and_steps(
-            selected_effects)
+        # Find the shortest path to achieve the selected effects
+        shortest_path = bfs_shortest_path(selected_effects)
 
         st.subheader("Reverse Search Results")
-        if matching_substances:
-            st.write("The following substances can produce the desired effects:")
-            for i, substance in enumerate(matching_substances):
-                st.write(f"- **{substance}**")
-                st.write("  Steps to achieve effects:")
-                for step in transformation_steps[i]:
-                    st.write(f"    - {step}")
+        if shortest_path:
+            st.write("The shortest path to achieve the selected effects is:")
+            for step in shortest_path:
+                st.write(f"- {step}")
         else:
-            st.write("No substances found that can produce the desired effects.")
+            st.write("No path found to achieve the selected effects.")
 
 # Streamlit section: How Pricing Works
 st.sidebar.markdown("## How Pricing Works")
