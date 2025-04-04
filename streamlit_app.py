@@ -9,7 +9,10 @@ import streamlit as st
 
 # Base prices for products
 BASE_PRICES = {
-    "Weed": 35,
+    "OG Kush": 39,
+    "Sour Diesel": 40,
+    "Green Crack": 43,
+    "Granddaddy Purple": 44,
     "Meth": 70,
     "Cocaine": 150
 }
@@ -54,6 +57,10 @@ EFFECTS = {
 
 # Default effects for substances
 DEFAULT_EFFECTS = {
+    "OG Kush": ["Calming"],
+    "Sour Diesel": ["Refreshing"],
+    "Green Crack": ["Energizing"],
+    "Granddaddy Purple": ["Sedating"],
     "Addy": ["Thought-Provoking"],
     "Banana": ["Gingeritis"],
     "Battery": ["Bright-Eyed"],
