@@ -452,14 +452,29 @@ with tab1:
     ]
     substance_options.insert(0, "None")  # Add "None" as the first option
 
-    for i in range(8):  # Allow up to 8 substances
-        selected_option = st.selectbox(
-            f"Substance {i + 1}:", substance_options, key=f"substance_{i}"
-        )
-        if selected_option != "None":
-            # Extract the substance name (remove the effect label in parentheses)
-            substance_name = selected_option.split(" (")[0]
-            substances.append(substance_name)
+    # Create 2 columns for 8 dropdowns (4 in each column)
+    col1, col2 = st.columns(2)
+
+    # Add 4 dropdowns in each column
+    for i in range(4):
+        with col1:
+            selected_option = st.selectbox(
+                f"Substance {i + 1}:", substance_options, key=f"substance_{i}"
+            )
+            if selected_option != "None":
+                # Extract the substance name (remove the effect label in parentheses)
+                substance_name = selected_option.split(" (")[0]
+                substances.append(substance_name)
+
+    for i in range(4, 8):
+        with col2:
+            selected_option = st.selectbox(
+                f"Substance {i + 1}:", substance_options, key=f"substance_{i}"
+            )
+            if selected_option != "None":
+                # Extract the substance name (remove the effect label in parentheses)
+                substance_name = selected_option.split(" (")[0]
+                substances.append(substance_name)
 
     # Step 3: Mix button
     if st.button("Mix"):
