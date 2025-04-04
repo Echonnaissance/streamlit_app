@@ -363,8 +363,15 @@ with tab2:
     st.header("Reverse Search: Find Substances by Effects")
 
     # Reverse Search Section
-    desired_effects = st.multiselect("Select Desired Effects:", list(EFFECTS.keys()))
+    st.markdown("### Select Desired Effects")
+    desired_effects = []
 
+    # Generate checkboxes for each effect
+    for effect in EFFECTS.keys():
+        if st.checkbox(effect, key=f"effect_{effect}"):
+            desired_effects.append(effect)
+
+    # Search button
     if st.button("Search Substances"):
         matching_substances, transformation_steps = find_substances_with_effects_and_steps(desired_effects)
 
