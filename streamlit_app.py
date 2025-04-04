@@ -7,7 +7,7 @@
 
 import streamlit as st
 
-# Base prices for substances
+# Base prices for products
 BASE_PRICES = {
     "Weed": 35,
     "Meth": 70,
@@ -52,7 +52,27 @@ EFFECTS = {
     "Zombifying": 0.58
 }
 
-# Rules for each substance (ordered alphabetically)
+# Default effects for substances
+DEFAULT_EFFECTS = {
+    "Addy": ["Thought-Provoking"],
+    "Banana": ["Gingeritis"],
+    "Battery": ["Bright-Eyed"],
+    "Chili": ["Spicy"],
+    "Cuke": ["Energizing"],
+    "Donut": ["Calorie-Dense"],
+    "Energy Drink": ["Athletic"],
+    "Flu Medicine": ["Sedating"],
+    "Gasoline": ["Toxic"],
+    "Horse Semen": ["Long Faced"],
+    "Iodine": ["Jennerising"],
+    "Mega Bean": ["Foggy"],
+    "Motor Oil": ["Slippery"],
+    "Mouth Wash": ["Balding"],
+    "Paracetamol": ["Sneaky"],
+    "Viagra": ["Tropic Thunder"]
+}
+
+# Rules for each substance
 SUBSTANCE_RULES = {
     "Addy": [
         ("Sedating", "Gingeritis"),
@@ -60,6 +80,14 @@ SUBSTANCE_RULES = {
         ("Glowing", "Refreshing"),
         ("Foggy", "Energizing"),
         ("Explosive", "Euphoric")
+    ],
+    "Battery": [
+        ("Munchies", "Tropic Thunder"),
+        ("Euphoric", "Zombifying"),
+        ("Electrifying", "Euphoric"),
+        ("Laxative", "Calorie-Dense"),
+        ("Cyclopean", "Glowing"),
+        ("Shrinking", "Munchies")
     ],
     "Banana": [
         ("Energizing", "Thought-Provoking"),
@@ -71,14 +99,6 @@ SUBSTANCE_RULES = {
         ("Focused", "Seizure-Inducing"),
         ("Paranoia", "Jennerising"),
         ("Smelly", "Anti-Gravity")
-    ],
-    "Battery": [
-        ("Munchies", "Tropic Thunder"),
-        ("Euphoric", "Zombifying"),
-        ("Electrifying", "Euphoric"),
-        ("Laxative", "Calorie-Dense"),
-        ("Cyclopean", "Glowing"),
-        ("Shrinking", "Munchies")
     ],
     "Chili": [
         ("Athletic", "Euphoric"),
@@ -199,132 +219,69 @@ SUBSTANCE_RULES = {
     ]
 }
 
-# Default effects for substances (ordered alphabetically)
-DEFAULT_EFFECTS = {
-    "Addy": ["Thought-Provoking"],
-    "Banana": ["Gingeritis"],
-    "Battery": ["Bright-Eyed"],
-    "Chili": ["Spicy"],
-    "Cuke": ["Energizing"],
-    "Donut": ["Calorie-Dense"],
-    "Energy Drink": ["Athletic"],
-    "Flu Medicine": ["Sedating"],
-    "Gasoline": ["Toxic"],
-    "Horse Semen": ["Long Faced"],
-    "Iodine": ["Jennerising"],
-    "Mega Bean": ["Foggy"],
-    "Motor Oil": ["Slippery"],
-    "Mouth Wash": ["Balding"],
-    "Paracetamol": ["Sneaky"],
-    "Viagra": ["Tropic Thunder"]
-}
-
 # Function to add default effects
-
-
 def add_substance_default_effects(substance, selected_effects):
-    """
-    Adds the default effects of the selected substance to the effects list, ensuring the total number of effects does not exceed the maximum limit of 8.
-    """
     default_effects = DEFAULT_EFFECTS.get(substance, [])
     updated_effects = set(selected_effects)
     for effect in default_effects:
-        # Max 8 effects
-        if effect not in updated_effects and len(updated_effects) < 8:
+        if effect not in updated_effects and len(updated_effects) < 8:  # Max 8 effects
             updated_effects.add(effect)
     return list(updated_effects)
 
 # Function to apply rules to effects
-
-
 def apply_substance_rules(substance, selected_effects):
-    """
-    Applies the ruleset for the given substance to the effects list.
-    If `old_effect` is not in `selected_effects`, that rule is skipped and no changes are made.
-    """
     rules = SUBSTANCE_RULES.get(substance, [])
     updated_effects = set(selected_effects)
     for old_effect, new_effect in rules:
         if old_effect in updated_effects:
             updated_effects.remove(old_effect)
             updated_effects.add(new_effect)
-    updated_effects = list(updated_effects)
-    return updated_effects
+    return list(updated_effects)
 
-# Function to handle both default effects and rules
-
-
+# Function to process effects for a single substance
 def process_effects(substance, selected_effects):
-    """
-    Processes the effects for a given substance by first adding its default effects 
-    and then applying the associated ruleset.
-
-    Parameters:
-        substance (str): The name of the substance to process.
-        selected_effects (list): A list of effects currently selected.
-
-    Returns:
-        list: A list of final effects after adding defaults and applying rules.
-
-    Note:
-        The order of operations is significant. Default effects are added first 
-        to ensure they are included before applying the ruleset, which may modify or 
-        replace existing effects.
-    """
-    # Step 1: Add default effects
-    effects_with_defaults = add_substance_default_effects(
-        substance, selected_effects)
-
-    # Step 2: Apply ruleset
+    effects_with_defaults = add_substance_default_effects(substance, selected_effects)
     final_effects = apply_substance_rules(substance, effects_with_defaults)
-
     return final_effects
-
 
 # Streamlit app
 st.title("Schedule I: Substance Mix Calculator")
 st.sidebar.header("Substance and Effects Selection")
 
-# Sidebar: Select substance
-substance = st.sidebar.selectbox(
-    "Select a substance:", sorted(
-        set(BASE_PRICES.keys()).union(DEFAULT_EFFECTS.keys()))
-)
+# Step 1: Select a product
+product = st.sidebar.selectbox("Select a Product:", list(BASE_PRICES.keys()))
 
-# Sidebar: Select effects
-selected_effects = st.sidebar.multiselect(
-    "Select effects:", list(EFFECTS.keys())
-)
+# Step 2: Add substances dynamically
+st.sidebar.markdown("### Add Substances")
+substances = []
+for i in range(8):  # Allow up to 8 substances
+    substance = st.sidebar.selectbox(f"Substance {i + 1}:", ["None"] + list(DEFAULT_EFFECTS.keys()), key=f"substance_{i}")
+    if substance != "None":
+        substances.append(substance)
 
-# Calculate button
-if st.sidebar.button("Calculate Final Price"):
-    # Process effects (add defaults and apply rules)
-    updated_effects = add_substance_default_effects(
-        substance, selected_effects)
-    updated_effects = apply_substance_rules(substance, updated_effects)
+# Step 3: Mix button
+if st.sidebar.button("Mix"):
+    # Process effects for all selected substances
+    final_effects = []
+    for substance in substances:
+        final_effects = process_effects(substance, final_effects)
 
     # Calculate total multiplier
-    total_multiplier = sum(EFFECTS.get(effect, 0)
-                           for effect in updated_effects)
+    total_multiplier = sum(EFFECTS.get(effect, 0) for effect in final_effects)
+
     # Calculate final price
-    if substance not in BASE_PRICES:
-        st.error(
-            f"The selected substance '{substance}' does not have a base price defined.")
-        base_price = 0  # Initialize base_price to avoid UnboundLocalError
-        final_price = 0  # Initialize final_price to avoid further errors
-    else:
-        base_price = BASE_PRICES[substance]
-        final_price = base_price * (1 + total_multiplier)
+    base_price = BASE_PRICES[product]
+    final_price = base_price * (1 + total_multiplier)
 
     # Display results
     st.subheader("Mix Results")
+    st.write(f"**Product:** {product}")
     st.write(f"**Base Price:** ${base_price}")
-    st.write(f"**Selected Effects (After Rules Applied):** " +
-             ", ".join([f"{effect} (x{EFFECTS[effect]:.2f})" for effect in updated_effects]))
-    st.write(f"**Selected Effects (After Rules Applied):** " +
-             ", ".join([f"{effect} (x{EFFECTS[effect]:.2f})" for effect in updated_effects]))
-    for effect in updated_effects:
+    st.write(f"**Selected Substances:** {', '.join(substances)}")
+    st.write(f"**Final Effects:**")
+    for effect in final_effects:
         st.write(f"- {effect} (x{EFFECTS[effect]:.2f})")
+    st.write(f"**Total Multiplier:** {total_multiplier:.2f}")
     st.write(f"**Final Price:** ~${round(final_price)}")
 
 # Streamlit section: How Pricing Works
