@@ -364,12 +364,42 @@ with tab2:
 
     # Reverse Search Section
     st.markdown("### Select Desired Effects")
+
+    # Divide effects into 4 groups for columns
+    effects_list = list(EFFECTS.keys())
+    column_groups = [
+        effects_list[:8],   # First 8 effects
+        effects_list[8:16], # Next 8 effects
+        effects_list[16:24],# Next 8 effects
+        effects_list[24:]   # Remaining 10 effects
+    ]
+
+    # Create 4 columns
+    col1, col2, col3, col4 = st.columns(4)
+
+    # Collect selected effects
     desired_effects = []
 
-    # Generate checkboxes for each effect
-    for effect in EFFECTS.keys():
-        if st.checkbox(effect, key=f"effect_{effect}"):
-            desired_effects.append(effect)
+    # Add checkboxes to each column
+    with col1:
+        for effect in column_groups[0]:
+            if st.checkbox(effect, key=f"effect_{effect}"):
+                desired_effects.append(effect)
+
+    with col2:
+        for effect in column_groups[1]:
+            if st.checkbox(effect, key=f"effect_{effect}"):
+                desired_effects.append(effect)
+
+    with col3:
+        for effect in column_groups[2]:
+            if st.checkbox(effect, key=f"effect_{effect}"):
+                desired_effects.append(effect)
+
+    with col4:
+        for effect in column_groups[3]:
+            if st.checkbox(effect, key=f"effect_{effect}"):
+                desired_effects.append(effect)
 
     # Search button
     if st.button("Search Substances"):
