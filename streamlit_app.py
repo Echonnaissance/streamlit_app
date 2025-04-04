@@ -18,255 +18,246 @@ BASE_PRICES = {
 }
 
 # Effects and their multipliers
-with st.expander("Effects and Multipliers"):
-    st.write("""
-    Effects and their corresponding multipliers are used to calculate the final price of a product.
-    """)
-    EFFECTS = {
-        "Anti-Gravity": 0.54,
-        "Athletic": 0.32,
-        "Balding": 0.30,
-        "Bright-Eyed": 0.40,
-        "Calming": 0.10,
-        "Calorie-Dense": 0.28,
-        "Cyclopean": 0.56,
-        "Disorienting": 0.00,
-        "Electrifying": 0.50,
-        "Energizing": 0.22,
-        "Euphoric": 0.18,
-        "Explosive": 0.00,
-        "Focused": 0.16,
-        "Foggy": 0.36,
-        "Gingeritis": 0.20,
-        "Glowing": 0.48,
-        "Jennerising": 0.42,
-        "Laxative": 0.00,
-        "Long Faced": 0.52,
-        "Munchies": 0.12,
-        "Paranoia": 0.00,
-        "Refreshing": 0.14,
-        "Schizophrenia": 0.00,
-        "Sedating": 0.26,
-        "Seizure-Inducing": 0.00,
-        "Shrinking": 0.60,
-        "Slippery": 0.34,
-        "Smelly": 0.00,
-        "Sneaky": 0.24,
-        "Spicy": 0.38,
-        "Thought-Provoking": 0.44,
-        "Toxic": 0.00,
-        "Tropic Thunder": 0.46,
-        "Zombifying": 0.58
-    }
+EFFECTS = {
+    "Anti-Gravity": 0.54,
+    "Athletic": 0.32,
+    "Balding": 0.30,
+    "Bright-Eyed": 0.40,
+    "Calming": 0.10,
+    "Calorie-Dense": 0.28,
+    "Cyclopean": 0.56,
+    "Disorienting": 0.00,
+    "Electrifying": 0.50,
+    "Energizing": 0.22,
+    "Euphoric": 0.18,
+    "Explosive": 0.00,
+    "Focused": 0.16,
+    "Foggy": 0.36,
+    "Gingeritis": 0.20,
+    "Glowing": 0.48,
+    "Jennerising": 0.42,
+    "Laxative": 0.00,
+    "Long Faced": 0.52,
+    "Munchies": 0.12,
+    "Paranoia": 0.00,
+    "Refreshing": 0.14,
+    "Schizophrenia": 0.00,
+    "Sedating": 0.26,
+    "Seizure-Inducing": 0.00,
+    "Shrinking": 0.60,
+    "Slippery": 0.34,
+    "Smelly": 0.00,
+    "Sneaky": 0.24,
+    "Spicy": 0.38,
+    "Thought-Provoking": 0.44,
+    "Toxic": 0.00,
+    "Tropic Thunder": 0.46,
+    "Zombifying": 0.58
+}
 
 # Default effects for substances
-with st.expander("Default Effects for Substances"):
-    st.write("""
-    Each substance has default effects that are applied when it is added to a mix.
-    """)
-    DEFAULT_EFFECTS = {
-        "OG Kush": ["Calming"],
-        "Sour Diesel": ["Refreshing"],
-        "Green Crack": ["Energizing"],
-        "Granddaddy Purple": ["Sedating"],
-        "Addy": ["Thought-Provoking"],
-        "Banana": ["Gingeritis"],
-        "Battery": ["Bright-Eyed"],
-        "Chili": ["Spicy"],
-        "Cuke": ["Energizing"],
-        "Donut": ["Calorie-Dense"],
-        "Energy Drink": ["Athletic"],
-        "Flu Medicine": ["Sedating"],
-        "Gasoline": ["Toxic"],
-        "Horse Semen": ["Long Faced"],
-        "Iodine": ["Jennerising"],
-        "Mega Bean": ["Foggy"],
-        "Motor Oil": ["Slippery"],
-        "Mouth Wash": ["Balding"],
-        "Paracetamol": ["Sneaky"],
-        "Viagra": ["Tropic Thunder"]
-    }
+DEFAULT_EFFECTS = {
+    "OG Kush": ["Calming"],
+    "Sour Diesel": ["Refreshing"],
+    "Green Crack": ["Energizing"],
+    "Granddaddy Purple": ["Sedating"],
+    "Addy": ["Thought-Provoking"],
+    "Banana": ["Gingeritis"],
+    "Battery": ["Bright-Eyed"],
+    "Chili": ["Spicy"],
+    "Cuke": ["Energizing"],
+    "Donut": ["Calorie-Dense"],
+    "Energy Drink": ["Athletic"],
+    "Flu Medicine": ["Sedating"],
+    "Gasoline": ["Toxic"],
+    "Horse Semen": ["Long Faced"],
+    "Iodine": ["Jennerising"],
+    "Mega Bean": ["Foggy"],
+    "Motor Oil": ["Slippery"],
+    "Mouth Wash": ["Balding"],
+    "Paracetamol": ["Sneaky"],
+    "Viagra": ["Tropic Thunder"]
+}
 
 # Rules for each substance
-with st.expander("Substance Rules"):
-    st.write("""
-    Rules define how substances interact with existing effects in a mix.
-    """)
-    SUBSTANCE_RULES = {
-        "Addy": [
-            ("Sedating", "Gingeritis"),
-            ("Long Faced", "Electrifying"),
-            ("Glowing", "Refreshing"),
-            ("Foggy", "Energizing"),
-            ("Explosive", "Euphoric")
-        ],
-        "Battery": [
-            ("Munchies", "Tropic Thunder"),
-            ("Euphoric", "Zombifying"),
-            ("Electrifying", "Euphoric"),
-            ("Laxative", "Calorie-Dense"),
-            ("Cyclopean", "Glowing"),
-            ("Shrinking", "Munchies")
-        ],
-        "Banana": [
-            ("Energizing", "Thought-Provoking"),
-            ("Calming", "Sneaky"),
-            ("Toxic", "Smelly"),
-            ("Long Faced", "Refreshing"),
-            ("Cyclopean", "Thought-Provoking"),
-            ("Disorienting", "Focused"),
-            ("Focused", "Seizure-Inducing"),
-            ("Paranoia", "Jennerising"),
-            ("Smelly", "Anti-Gravity")
-        ],
-        "Chili": [
-            ("Athletic", "Euphoric"),
-            ("Anti-Gravity", "Tropic Thunder"),
-            ("Sneaky", "Bright-Eyed"),
-            ("Munchies", "Toxic"),
-            ("Laxative", "Long Faced"),
-            ("Shrinking", "Refreshing")
-        ],
-        "Cuke": [
-            ("Toxic", "Euphoric"),
-            ("Slippery", "Munchies"),
-            ("Sneaky", "Paranoia"),
-            ("Foggy", "Cyclopean"),
-            ("Gingeritis", "Thought-Provoking"),
-            ("Munchies", "Athletic"),
-            ("Euphoric", "Laxative")
-        ],
-        "Donut": [
-            ("Calorie-Dense", "Explosive"),
-            ("Balding", "Sneaky"),
-            ("Anti-Gravity", "Slippery"),
-            ("Jennerising", "Gingeritis"),
-            ("Focused", "Euphoric"),
-            ("Shrinking", "Energizing")
-        ],
-        "Energy Drink": [
-            ("Sedating", "Munchies"),
-            ("Euphoric", "Energizing"),
-            ("Spicy", "Euphoric"),
-            ("Tropic Thunder", "Sneaky"),
-            ("Glowing", "Disorienting"),
-            ("Foggy", "Laxative"),
-            ("Disorienting", "Electrifying"),
-            ("Schizophrenia", "Balding"),
-            ("Focused", "Shrinking")
-        ],
-        "Flu Medicine": [
-            ("Calming", "Bright-Eyed"),
-            ("Athletic", "Munchies"),
-            ("Thought-Provoking", "Gingeritis"),
-            ("Cyclopean", "Foggy"),
-            ("Munchies", "Slippery"),
-            ("Laxative", "Euphoric"),
-            ("Euphoric", "Toxic"),
-            ("Focused", "Calming"),
-            ("Electrifying", "Refreshing"),
-            ("Shrinking", "Paranoia")
-        ],
-        "Gasoline": [
-            ("Gingeritis", "Smelly"),
-            ("Jennerising", "Sneaky"),
-            ("Sneaky", "Tropic Thunder"),
-            ("Munchies", "Sedating"),
-            ("Energizing", "Euphoric"),
-            ("Euphoric", "Energizing"),
-            ("Laxative", "Foggy"),
-            ("Disorienting", "Glowing"),
-            ("Paranoia", "Calming"),
-            ("Electrifying", "Disorienting"),
-            ("Shrinking", "Focused")
-        ],
-        "Horse Semen": [
-            ("Anti-Gravity", "Calming"),
-            ("Gingeritis", "Refreshing"),
-            ("Thought-Provoking", "Electrifying")
-        ],
-        "Iodine": [
-            ("Calming", "Balding"),
-            ("Toxic", "Sneaky"),
-            ("Foggy", "Paranoia"),
-            ("Calorie-Dense", "Gingeritis"),
-            ("Euphoric", "Seizure-Inducing"),
-            ("Refreshing", "Thought-Provoking")
-        ],
-        "Mega Bean": [
-            ("Energizing", "Cyclopean"),
-            ("Calming", "Glowing"),
-            ("Sneaky", "Calming"),
-            ("Jennerising", "Paranoia"),
-            ("Athletic", "Laxative"),
-            ("Slippery", "Toxic"),
-            ("Thought-Provoking", "Energizing"),
-            ("Seizure-Inducing", "Focused"),
-            ("Focused", "Disorienting"),
-            ("Shrinking", "Electrifying")
-        ],
-        "Motor Oil": [
-            ("Energizing", "Munchies"),
-            ("Foggy", "Toxic"),
-            ("Euphoric", "Sedating"),
-            ("Paranoia", "Anti-Gravity"),
-            ("Munchies", "Schizophrenia")
-        ],
-        "Mouth Wash": [
-            ("Calming", "Anti-Gravity"),
-            ("Calorie-Dense", "Sneaky"),
-            ("Explosive", "Sedating"),
-            ("Focused", "Jennerising")
-        ],
-        "Paracetamol": [
-            ("Energizing", "Paranoia"),
-            ("Calming", "Slippery"),
-            ("Toxic", "Tropic Thunder"),
-            ("Spicy", "Bright-Eyed"),
-            ("Glowing", "Toxic"),
-            ("Foggy", "Calming"),
-            ("Munchies", "Anti-Gravity"),
-            ("Electrifying", "Athletic"),
-            ("Paranoia", "Balding"),
-            ("Focused", "Gingeritis")
-        ],
-        "Viagra": [
-            ("Athletic", "Sneaky"),
-            ("Euphoric", "Bright-Eyed"),
-            ("Laxative", "Calming"),
-            ("Disorienting", "Toxic")
-        ]
-    }
+SUBSTANCE_RULES = {
+    "Addy": [
+        ("Sedating", "Gingeritis"),
+        ("Long Faced", "Electrifying"),
+        ("Glowing", "Refreshing"),
+        ("Foggy", "Energizing"),
+        ("Explosive", "Euphoric")
+    ],
+    "Battery": [
+        ("Munchies", "Tropic Thunder"),
+        ("Euphoric", "Zombifying"),
+        ("Electrifying", "Euphoric"),
+        ("Laxative", "Calorie-Dense"),
+        ("Cyclopean", "Glowing"),
+        ("Shrinking", "Munchies")
+    ],
+    "Banana": [
+        ("Energizing", "Thought-Provoking"),
+        ("Calming", "Sneaky"),
+        ("Toxic", "Smelly"),
+        ("Long Faced", "Refreshing"),
+        ("Cyclopean", "Thought-Provoking"),
+        ("Disorienting", "Focused"),
+        ("Focused", "Seizure-Inducing"),
+        ("Paranoia", "Jennerising"),
+        ("Smelly", "Anti-Gravity")
+    ],
+    "Chili": [
+        ("Athletic", "Euphoric"),
+        ("Anti-Gravity", "Tropic Thunder"),
+        ("Sneaky", "Bright-Eyed"),
+        ("Munchies", "Toxic"),
+        ("Laxative", "Long Faced"),
+        ("Shrinking", "Refreshing")
+    ],
+    "Cuke": [
+        ("Toxic", "Euphoric"),
+        ("Slippery", "Munchies"),
+        ("Sneaky", "Paranoia"),
+        ("Foggy", "Cyclopean"),
+        ("Gingeritis", "Thought-Provoking"),
+        ("Munchies", "Athletic"),
+        ("Euphoric", "Laxative")
+    ],
+    "Donut": [
+        ("Calorie-Dense", "Explosive"),
+        ("Balding", "Sneaky"),
+        ("Anti-Gravity", "Slippery"),
+        ("Jennerising", "Gingeritis"),
+        ("Focused", "Euphoric"),
+        ("Shrinking", "Energizing")
+    ],
+    "Energy Drink": [
+        ("Sedating", "Munchies"),
+        ("Euphoric", "Energizing"),
+        ("Spicy", "Euphoric"),
+        ("Tropic Thunder", "Sneaky"),
+        ("Glowing", "Disorienting"),
+        ("Foggy", "Laxative"),
+        ("Disorienting", "Electrifying"),
+        ("Schizophrenia", "Balding"),
+        ("Focused", "Shrinking")
+    ],
+    "Flu Medicine": [
+        ("Calming", "Bright-Eyed"),
+        ("Athletic", "Munchies"),
+        ("Thought-Provoking", "Gingeritis"),
+        ("Cyclopean", "Foggy"),
+        ("Munchies", "Slippery"),
+        ("Laxative", "Euphoric"),
+        ("Euphoric", "Toxic"),
+        ("Focused", "Calming"),
+        ("Electrifying", "Refreshing"),
+        ("Shrinking", "Paranoia")
+    ],
+    "Gasoline": [
+        ("Gingeritis", "Smelly"),
+        ("Jennerising", "Sneaky"),
+        ("Sneaky", "Tropic Thunder"),
+        ("Munchies", "Sedating"),
+        ("Energizing", "Euphoric"),
+        ("Euphoric", "Energizing"),
+        ("Laxative", "Foggy"),
+        ("Disorienting", "Glowing"),
+        ("Paranoia", "Calming"),
+        ("Electrifying", "Disorienting"),
+        ("Shrinking", "Focused")
+    ],
+    "Horse Semen": [
+        ("Anti-Gravity", "Calming"),
+        ("Gingeritis", "Refreshing"),
+        ("Thought-Provoking", "Electrifying")
+    ],
+    "Iodine": [
+        ("Calming", "Balding"),
+        ("Toxic", "Sneaky"),
+        ("Foggy", "Paranoia"),
+        ("Calorie-Dense", "Gingeritis"),
+        ("Euphoric", "Seizure-Inducing"),
+        ("Refreshing", "Thought-Provoking")
+    ],
+    "Mega Bean": [
+        ("Energizing", "Cyclopean"),
+        ("Calming", "Glowing"),
+        ("Sneaky", "Calming"),
+        ("Jennerising", "Paranoia"),
+        ("Athletic", "Laxative"),
+        ("Slippery", "Toxic"),
+        ("Thought-Provoking", "Energizing"),
+        ("Seizure-Inducing", "Focused"),
+        ("Focused", "Disorienting"),
+        ("Shrinking", "Electrifying")
+    ],
+    "Motor Oil": [
+        ("Energizing", "Munchies"),
+        ("Foggy", "Toxic"),
+        ("Euphoric", "Sedating"),
+        ("Paranoia", "Anti-Gravity"),
+        ("Munchies", "Schizophrenia")
+    ],
+    "Mouth Wash": [
+        ("Calming", "Anti-Gravity"),
+        ("Calorie-Dense", "Sneaky"),
+        ("Explosive", "Sedating"),
+        ("Focused", "Jennerising")
+    ],
+    "Paracetamol": [
+        ("Energizing", "Paranoia"),
+        ("Calming", "Slippery"),
+        ("Toxic", "Tropic Thunder"),
+        ("Spicy", "Bright-Eyed"),
+        ("Glowing", "Toxic"),
+        ("Foggy", "Calming"),
+        ("Munchies", "Anti-Gravity"),
+        ("Electrifying", "Athletic"),
+        ("Paranoia", "Balding"),
+        ("Focused", "Gingeritis")
+    ],
+    "Viagra": [
+        ("Athletic", "Sneaky"),
+        ("Euphoric", "Bright-Eyed"),
+        ("Laxative", "Calming"),
+        ("Disorienting", "Toxic")
+    ]
+}
 
-# Helper functions
-with st.expander("Helper Functions"):
-    st.write("""
-    These functions handle the logic for processing effects, applying rules, and calculating prices.
-    """)
+# Function to add default effects
 
-    def add_substance_default_effects(substance, selected_effects):
-        default_effects = DEFAULT_EFFECTS.get(substance, [])
-        updated_effects = set(selected_effects)
-        for effect in default_effects:
-            # Max 8 effects
-            if effect not in updated_effects and len(updated_effects) < 8:
-                updated_effects.add(effect)
-        return list(updated_effects)
 
-    def apply_substance_rules(substance, selected_effects):
-        rules = SUBSTANCE_RULES.get(substance, [])
-        updated_effects = set(selected_effects)
-        for old_effect, new_effect in rules:
-            if old_effect in updated_effects:
-                updated_effects.remove(old_effect)
-                updated_effects.add(new_effect)
-        return list(updated_effects)
+def add_substance_default_effects(substance, selected_effects):
+    default_effects = DEFAULT_EFFECTS.get(substance, [])
+    updated_effects = set(selected_effects)
+    for effect in default_effects:
+        # Max 8 effects
+        if effect not in updated_effects and len(updated_effects) < 8:
+            updated_effects.add(effect)
+    return list(updated_effects)
 
-    def process_effects(substance, selected_effects):
-        effects_with_defaults = add_substance_default_effects(
-            substance, selected_effects)
-        final_effects = apply_substance_rules(substance, effects_with_defaults)
-        return final_effects
+# Function to apply rules to effects
+
+
+def apply_substance_rules(substance, selected_effects):
+    rules = SUBSTANCE_RULES.get(substance, [])
+    updated_effects = set(selected_effects)
+    for old_effect, new_effect in rules:
+        if old_effect in updated_effects:
+            updated_effects.remove(old_effect)
+            updated_effects.add(new_effect)
+    return list(updated_effects)
+
+# Function to process effects for a single substance
+
+
+def process_effects(substance, selected_effects):
+    effects_with_defaults = add_substance_default_effects(
+        substance, selected_effects)
+    final_effects = apply_substance_rules(substance, effects_with_defaults)
+    return final_effects
 
 # Function to generate dropdown options with base effects
 
