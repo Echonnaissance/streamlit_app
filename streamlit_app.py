@@ -244,6 +244,17 @@ def process_effects(substance, selected_effects):
     final_effects = apply_substance_rules(substance, effects_with_defaults)
     return final_effects
 
+# Function to generate dropdown options with base effects
+def get_substance_options():
+    """
+    Returns a list of substances with their default effects included in the label.
+    """
+    options = ["None"]  # Start with "None" as the default option
+    for substance, effects in DEFAULT_EFFECTS.items():
+        effect_label = ", ".join(effects)  # Combine multiple effects if present
+        options.append(f"{substance} ({effect_label})")
+    return options
+
 # Streamlit app
 st.title("Schedule I: Substance Mix Calculator")
 st.sidebar.header("Substance and Effects Selection")
@@ -254,10 +265,13 @@ product = st.sidebar.selectbox("Select a Product:", list(BASE_PRICES.keys()))
 # Step 2: Add substances dynamically
 st.sidebar.markdown("### Add Substances")
 substances = []
+substance_options = get_substance_options()  # Get dropdown options with base effects
 for i in range(8):  # Allow up to 8 substances
-    substance = st.sidebar.selectbox(f"Substance {i + 1}:", ["None"] + list(DEFAULT_EFFECTS.keys()), key=f"substance_{i}")
-    if substance != "None":
-        substances.append(substance)
+    selected_option = st.sidebar.selectbox(f"Substance {i + 1}:", substance_options, key=f"substance_{i}")
+    if selected_option != "None":
+        # Extract the substance name (remove the effect label in parentheses)
+        substance_name = selected_option.split(" (")[0]
+        substances.append(substance_name)
 
 # Step 3: Mix button
 if st.sidebar.button("Mix"):
