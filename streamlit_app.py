@@ -550,10 +550,15 @@ with tab1:
 with tab2:
     st.header("Reverse Search: Find Substances by Effects")
 
-    # Reverse Search Section
-    st.markdown("### Select Desired Effects")
+    # Step 1: Select a product
+    st.markdown("### Select a Product")
+    selected_product = st.selectbox(
+        "Select a Product for Context:",
+        ["OG Kush", "Sour Diesel", "Green Crack", "Granddaddy Purple", "Meth", "Cocaine"]
+    )
 
-    # Initialize selected effects
+    # Step 2: Select desired effects
+    st.markdown("### Select Desired Effects")
     selected_effects = set()
 
     # Divide effects into 4 groups for columns
@@ -579,25 +584,28 @@ with tab2:
     st.write(
         f"Selected Effects ({len(selected_effects)}): {', '.join(selected_effects)}")
 
-    # Search button
+    # Step 3: Search button
     if st.button("Search Substances"):
         # Find the shortest path to achieve the selected effects
         shortest_path = bfs_shortest_path(selected_effects)
 
         st.subheader("Reverse Search Results")
         if shortest_path:
-            # Allow the user to select the product for context
-            selected_product = st.selectbox(
-                "Select a Product for Context:",
-                ["OG Kush", "Sour Diesel", "Green Crack",
-                    "Granddaddy Purple", "Meth", "Cocaine"]
-            )
+            # Calculate the cost and sell value
+            base_price = BASE_PRICES[selected_product]
+            total_multiplier = sum(EFFECTS.get(effect, 0) for effect in selected_effects)
+            final_price = base_price * (1 + total_multiplier)
+            sell_value = final_price * 1.5  # Assuming a 50% markup for sell value
 
+            # Display the results
             st.write(
                 f"The shortest path to achieve the selected effects using **{selected_product}** is:")
             for step in shortest_path:
-                st.write(
-                    f"- **{step}**: This step contributes to achieving the desired effects.")
+                st.write(f"- **{step}**")
+
+            st.subheader("Cost and Sell Value")
+            st.write(f"**Cost:** ${round(final_price)}")
+            st.write(f"**Sell Value:** ${round(sell_value)}")
         else:
             st.write("No path found to achieve the selected effects.")
 
