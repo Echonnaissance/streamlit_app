@@ -255,6 +255,60 @@ def get_substance_options():
         options.append(f"{substance} ({effect_label})")
     return options
 
+# Function to find substances that can produce the desired effects
+def find_substances_with_effects(desired_effects):
+    """
+    Finds substances that can produce the desired effects, either as default effects
+    or through rule-based transformations.
+    """
+    matching_substances = []
+
+    for substance, default_effects in DEFAULT_EFFECTS.items():
+        # Start with the default effects of the substance
+        effects = set(default_effects)
+
+        # Apply the substance's rules to simulate possible effects
+        if substance in SUBSTANCE_RULES:
+            for old_effect, new_effect in SUBSTANCE_RULES[substance]:
+                if old_effect in effects:
+                    effects.remove(old_effect)
+                    effects.add(new_effect)
+
+        # Check if the substance can produce all desired effects
+        if all(effect in effects for effect in desired_effects):
+            matching_substances.append(substance)
+
+    return matching_substances
+
+# Function to find substances and show how they produce the desired effects
+def find_substances_with_effects_and_steps(desired_effects):
+    """
+    Finds substances that can produce the desired effects and tracks the steps
+    (default effects and rule-based transformations) used to achieve them.
+    """
+    matching_substances = []
+    transformation_steps = []
+
+    for substance, default_effects in DEFAULT_EFFECTS.items():
+        # Start with the default effects of the substance
+        effects = set(default_effects)
+        steps = [f"{substance} (Default Effects: {', '.join(default_effects)})"]
+
+        # Apply the substance's rules to simulate possible effects
+        if substance in SUBSTANCE_RULES:
+            for old_effect, new_effect in SUBSTANCE_RULES[substance]:
+                if old_effect in effects:
+                    effects.remove(old_effect)
+                    effects.add(new_effect)
+                    steps.append(f"{substance} transformed {old_effect} → {new_effect}")
+
+        # Check if the substance can produce all desired effects
+        if all(effect in effects for effect in desired_effects):
+            matching_substances.append(substance)
+            transformation_steps.append(steps)
+
+    return matching_substances, transformation_steps
+
 # Streamlit app
 st.title("Schedule I: Substance Mix Calculator")
 st.sidebar.header("Substance and Effects Selection")
@@ -297,6 +351,24 @@ if st.sidebar.button("Mix"):
         st.write(f"- {effect} (x{EFFECTS[effect]:.2f})")
     st.write(f"**Total Multiplier:** {total_multiplier:.2f}")
     st.write(f"**Final Price:** ~${round(final_price)}")
+
+# Reverse Search Section
+st.sidebar.markdown("### Reverse Search: Find Substances by Effects")
+desired_effects = st.sidebar.multiselect("Select Desired Effects:", list(EFFECTS.keys()))
+
+if st.sidebar.button("Search Substances"):
+    matching_substances, transformation_steps = find_substances_with_effects_and_steps(desired_effects)
+
+    st.subheader("Reverse Search Results")
+    if matching_substances:
+        st.write("The following substances can produce the desired effects:")
+        for i, substance in enumerate(matching_substances):
+            st.write(f"- **{substance}**")
+            st.write("  Steps to achieve effects:")
+            for step in transformation_steps[i]:
+                st.write(f"    - {step}")
+    else:
+        st.write("No substances found that can produce the desired effects.")
 
 # Streamlit section: How Pricing Works
 st.sidebar.markdown("## How Pricing Works")
