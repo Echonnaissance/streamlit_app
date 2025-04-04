@@ -310,14 +310,18 @@ def find_substances_with_effects_and_steps(desired_effects):
     return matching_substances, transformation_steps
 
 # Function to perform BFS to explore all possible transformations
-def bfs_all_transformations(start_effects):
+def bfs_all_transformations(selected_effects):
     """
-    Perform BFS to find all reachable effects starting from the given effects.
-    :param start_effects: List of starting effects.
+    Perform BFS to find all reachable effects starting from the selected effects.
+    :param selected_effects: Set of currently selected effects.
     :return: Set of all reachable effects.
     """
-    queue = list(start_effects)  # Initialize the queue with starting effects
-    visited = set(start_effects)  # Track visited effects
+    if not selected_effects:
+        # If no effects are selected, all effects are valid
+        return set(EFFECTS.keys())
+
+    queue = list(selected_effects)  # Initialize the queue with selected effects
+    visited = set(selected_effects)  # Track visited effects
 
     while queue:
         current_effect = queue.pop(0)  # Dequeue the next effect
