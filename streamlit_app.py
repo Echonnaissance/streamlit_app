@@ -439,7 +439,8 @@ def bfs_shortest_path(selected_effects):
     if not selected_effects:
         return None  # No effects selected
 
-    queue = [(set(), [])]  # Start with an empty set of effects and an empty path
+    # Start with an empty set of effects and an empty path
+    queue = [(set(), [])]
     visited = set()  # Track visited states
 
     while queue:
@@ -585,9 +586,18 @@ with tab2:
 
         st.subheader("Reverse Search Results")
         if shortest_path:
-            st.write("The shortest path to achieve the selected effects is:")
+            # Allow the user to select the product for context
+            selected_product = st.selectbox(
+                "Select a Product for Context:",
+                ["OG Kush", "Sour Diesel", "Green Crack",
+                    "Granddaddy Purple", "Meth", "Cocaine"]
+            )
+
+            st.write(
+                f"The shortest path to achieve the selected effects using **{selected_product}** is:")
             for step in shortest_path:
-                st.write(f"- {step}")
+                st.write(
+                    f"- **{step}**: This step contributes to achieving the desired effects.")
         else:
             st.write("No path found to achieve the selected effects.")
 
