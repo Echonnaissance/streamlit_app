@@ -311,64 +311,73 @@ def find_substances_with_effects_and_steps(desired_effects):
 
 # Streamlit app
 st.title("Schedule I: Substance Mix Calculator")
-st.sidebar.header("Substance and Effects Selection")
 
-# Step 1: Select a product
-product = st.sidebar.selectbox("Select a Product:", list(BASE_PRICES.keys()))
+# Tabs for better organization
+tab1, tab2 = st.tabs(["Substance Mix Calculator", "Reverse Search"])
 
-# Step 2: Add substances dynamically
-st.sidebar.markdown("### Add Substances")
-substances = []
-substance_options = get_substance_options()  # Get dropdown options with base effects
-for i in range(8):  # Allow up to 8 substances
-    selected_option = st.sidebar.selectbox(f"Substance {i + 1}:", substance_options, key=f"substance_{i}")
-    if selected_option != "None":
-        # Extract the substance name (remove the effect label in parentheses)
-        substance_name = selected_option.split(" (")[0]
-        substances.append(substance_name)
+# Tab 1: Substance Mix Calculator
+with tab1:
+    st.header("Substance Mix Calculator")
 
-# Step 3: Mix button
-if st.sidebar.button("Mix"):
-    # Process effects for all selected substances
-    final_effects = []
-    for substance in substances:
-        final_effects = process_effects(substance, final_effects)
+    # Step 1: Select a product
+    product = st.selectbox("Select a Product:", list(BASE_PRICES.keys()))
 
-    # Calculate total multiplier
-    total_multiplier = sum(EFFECTS.get(effect, 0) for effect in final_effects)
+    # Step 2: Add substances dynamically
+    st.markdown("### Add Substances")
+    substances = []
+    substance_options = get_substance_options()  # Get dropdown options with base effects
+    for i in range(8):  # Allow up to 8 substances
+        selected_option = st.selectbox(f"Substance {i + 1}:", substance_options, key=f"substance_{i}")
+        if selected_option != "None":
+            # Extract the substance name (remove the effect label in parentheses)
+            substance_name = selected_option.split(" (")[0]
+            substances.append(substance_name)
 
-    # Calculate final price
-    base_price = BASE_PRICES[product]
-    final_price = base_price * (1 + total_multiplier)
+    # Step 3: Mix button
+    if st.button("Mix"):
+        # Process effects for all selected substances
+        final_effects = []
+        for substance in substances:
+            final_effects = process_effects(substance, final_effects)
 
-    # Display results
-    st.subheader("Mix Results")
-    st.write(f"**Product:** {product}")
-    st.write(f"**Base Price:** ${base_price}")
-    st.write(f"**Selected Substances:** {', '.join(substances)}")
-    st.write(f"**Final Effects:**")
-    for effect in final_effects:
-        st.write(f"- {effect} (x{EFFECTS[effect]:.2f})")
-    st.write(f"**Total Multiplier:** {total_multiplier:.2f}")
-    st.write(f"**Final Price:** ~${round(final_price)}")
+        # Calculate total multiplier
+        total_multiplier = sum(EFFECTS.get(effect, 0) for effect in final_effects)
 
-# Reverse Search Section
-st.sidebar.markdown("### Reverse Search: Find Substances by Effects")
-desired_effects = st.sidebar.multiselect("Select Desired Effects:", list(EFFECTS.keys()))
+        # Calculate final price
+        base_price = BASE_PRICES[product]
+        final_price = base_price * (1 + total_multiplier)
 
-if st.sidebar.button("Search Substances"):
-    matching_substances, transformation_steps = find_substances_with_effects_and_steps(desired_effects)
+        # Display results
+        st.subheader("Mix Results")
+        st.write(f"**Product:** {product}")
+        st.write(f"**Base Price:** ${base_price}")
+        st.write(f"**Selected Substances:** {', '.join(substances)}")
+        st.write(f"**Final Effects:**")
+        for effect in final_effects:
+            st.write(f"- {effect} (x{EFFECTS[effect]:.2f})")
+        st.write(f"**Total Multiplier:** {total_multiplier:.2f}")
+        st.write(f"**Final Price:** ~${round(final_price)}")
 
-    st.subheader("Reverse Search Results")
-    if matching_substances:
-        st.write("The following substances can produce the desired effects:")
-        for i, substance in enumerate(matching_substances):
-            st.write(f"- **{substance}**")
-            st.write("  Steps to achieve effects:")
-            for step in transformation_steps[i]:
-                st.write(f"    - {step}")
-    else:
-        st.write("No substances found that can produce the desired effects.")
+# Tab 2: Reverse Search
+with tab2:
+    st.header("Reverse Search: Find Substances by Effects")
+
+    # Reverse Search Section
+    desired_effects = st.multiselect("Select Desired Effects:", list(EFFECTS.keys()))
+
+    if st.button("Search Substances"):
+        matching_substances, transformation_steps = find_substances_with_effects_and_steps(desired_effects)
+
+        st.subheader("Reverse Search Results")
+        if matching_substances:
+            st.write("The following substances can produce the desired effects:")
+            for i, substance in enumerate(matching_substances):
+                st.write(f"- **{substance}**")
+                st.write("  Steps to achieve effects:")
+                for step in transformation_steps[i]:
+                    st.write(f"    - {step}")
+        else:
+            st.write("No substances found that can produce the desired effects.")
 
 # Streamlit section: How Pricing Works
 st.sidebar.markdown("## How Pricing Works")
